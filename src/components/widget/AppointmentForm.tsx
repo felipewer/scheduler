@@ -1,6 +1,6 @@
-import { FormikProps, withFormik } from 'formik';
+import { h, Component } from "preact";
 import moment from 'moment';
-import { Component, h } from "preact";
+import { FormikProps, withFormik} from 'formik';
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import * as Yup from 'yup';
@@ -10,22 +10,33 @@ import './style.css';
 interface FormValues {
   name: string,
   company: string,
-  email: string
+  email: string,
+  date: moment.Moment
 }
 
-class AppointmentForm extends Component<FormikProps<FormValues>> {
 
-  today = moment();
+class AppointmentForm extends Component<FormikProps<FormValues>> {
+  constructor(props: FormikProps<FormValues>) {
+    super(props);
+    this.handleDateChange = this.handleDateChange.bind(this);
+  }
+
+  handleDateChange(dateTime: moment.Moment) {
+    this.props.setFieldValue('date', dateTime)
+  }
 
   render(props: FormikProps<FormValues>) {
+    
     const {
       handleChange,
       handleBlur,
       handleSubmit,
+      isSubmitting,
       errors,
       touched,
       values
     } = props;
+
     return(
       <form onSubmit={handleSubmit}>
         <label for="name">Name</label>
@@ -67,18 +78,26 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
         <label for="appointment-date">Date / Time</label>
         <DatePicker
           id="appointment-date"
-          selected={this.today}
+          selected={values.date}
+          onChange={this.handleDateChange}
           showTimeSelect
           timeFormat="HH:mm"
-          timeIntervals={15}
+          timeIntervals={30}
           dateFormat="LLL"
           timeCaption="time"
+          autocomplete="off"
         />
-        <button>Confirm</button>
+        {errors.date && touched.date && (
+          <div class="input-feedback">{errors.date}</div>
+        )}
+        <button class="btn"
+          type="submit"
+          disabled={isSubmitting}>
+          Confirm
+        </button>
       </form>
     );
   }
-
 }
 
 const options = {
@@ -88,19 +107,24 @@ const options = {
     email: Yup.string()
       .email('Invalid email address')
       .required('Email is required!'),
+    date: Yup.date()
+      .typeError('Must be a valid date')
+      .min(moment(), 'Date must be in the future')
+      .required('Date is required!')
   }),
   mapPropsToValues: props => ({
+    name: '',
+    company: '',
     email: '',
+    date: moment()
   }),
-  handleSubmit: () => {},
-  // handleSubmit: (values: FormValues, { setSubmitting }) => {
-  //   const payload = {...values};
-  //   setTimeout(() => {
-  //     alert(JSON.stringify(payload, null, 2));
-  //     setSubmitting(false);
-  //   }, 1000);
-  // },
-  // displayName: 'MyForm'
+  handleSubmit: (values: FormValues, { setSubmitting }) => {
+    const payload = {...values};
+    setTimeout(() => {
+      console.log(JSON.stringify(payload, null, 2));
+      setSubmitting(false);
+    }, 3000);
+  }
 }
 
 export default withFormik(options)(AppointmentForm);
