@@ -1,22 +1,23 @@
 import { h, Component } from "preact";
+import { Moment } from 'moment';
 import moment from 'moment';
 import { FormikProps, withFormik} from 'formik';
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import * as Yup from 'yup';
 
-import { loadEvents, DateTimeEvents } from '../../services/calendar';
+import { loadEvents } from '../../services/calendar';
 import './style.css';
 
 interface FormValues {
   name: string,
   company: string,
   email: string,
-  date: moment.Moment
+  date: Moment
 }
 
 interface State {
-  events: DateTimeEvents,
+  events: Map<string, Moment[]>,
   loading: boolean
 }
 
@@ -25,7 +26,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
   constructor(props: FormikProps<FormValues>) {
     super(props);
     this.state = {
-      events: new Map<string, moment.Moment[]>(),
+      events: new Map<string, Moment[]>(),
       loading: false
     };
     this.handleDateChange = this.handleDateChange.bind(this);
@@ -38,7 +39,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
     });
   }
 
-  handleDateChange(dateTime: moment.Moment) {
+  handleDateChange(dateTime: Moment) {
     this.props.setFieldValue('date', dateTime)
   }
 
