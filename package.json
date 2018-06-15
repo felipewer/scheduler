@@ -5,12 +5,18 @@
   "main": "index.js",
   "scripts": {
     "start": "parcel -p 8080 index.html",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test-unit": "jest --watch --roots=src"
   },
   "author": "Felipe Carlos Werlang",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^23.1.0",
+    "@types/node": "^10.3.3",
+    "@types/parcel-env": "0.0.0",
+    "jest": "^23.1.0",
     "parcel-bundler": "^1.8.1",
+    "ts-jest": "^22.4.6",
     "typescript": "^2.9.1"
   },
   "dependencies": {
@@ -25,5 +31,20 @@
   "alias": {
     "react": "preact-compat",
     "react-dom": "preact-compat"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }
+

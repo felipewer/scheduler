@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import * as Yup from 'yup';
 
+import { loadEvents, DateTimeEvents } from '../../services/calendar';
 import './style.css';
 
 interface FormValues {
@@ -14,18 +15,34 @@ interface FormValues {
   date: moment.Moment
 }
 
+interface State {
+  events: DateTimeEvents,
+  loading: boolean
+}
 
 class AppointmentForm extends Component<FormikProps<FormValues>> {
+
   constructor(props: FormikProps<FormValues>) {
     super(props);
+    this.state = {
+      events: new Map<string, moment.Moment[]>(),
+      loading: false
+    };
     this.handleDateChange = this.handleDateChange.bind(this);
+  }
+
+  componentWillMount() {
+    this.setState({ loading: true });
+    loadEvents().then(events => {
+      this.setState({ events, loading: false });
+    });
   }
 
   handleDateChange(dateTime: moment.Moment) {
     this.props.setFieldValue('date', dateTime)
   }
 
-  render(props: FormikProps<FormValues>) {
+  render(props: FormikProps<FormValues>, state: State) {
     
     const {
       handleChange,
@@ -45,7 +62,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
           placeholder="Enter your name"
           type="text"
           value={values.name}
-          onChange={handleChange}
+          onInput={handleChange}
           onBlur={handleBlur}
         />
         {errors.name && touched.name && (
@@ -57,7 +74,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
           placeholder="Enter your company"
           type="text"
           value={values.company}
-          onChange={handleChange}
+          onInput={handleChange}
           onBlur={handleBlur}
         />
         {errors.company && touched.company && (
@@ -69,7 +86,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
           placeholder="Enter your email"
           type="email"
           value={values.email}
-          onChange={handleChange}
+          onInput={handleChange}
           onBlur={handleBlur}
           />
         {errors.email && touched.email && (
@@ -80,6 +97,12 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
           id="appointment-date"
           selected={values.date}
           onChange={this.handleDateChange}
+          excludeTimes={state.events.get(values.date.format('YYYY-MM-DD'))}
+          minTime={moment().hours(7).minutes(0)}
+          maxTime={moment().hours(21).minutes(30)}
+          minDate={moment()}
+          maxDate={moment().add(2, "months")}
+          showDisabledMonthNavigation
           showTimeSelect
           timeFormat="HH:mm"
           timeIntervals={30}
