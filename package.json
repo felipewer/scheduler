@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "parcel -p 8080 index.html",
+    "build": "parcel build src/widget.ts -o scheduler-widget --no-source-maps",
     "test": "jest",
     "test-unit": "jest --watch --roots=src"
   },
