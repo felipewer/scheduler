@@ -16,7 +16,8 @@
   },
   "include": [
     "src/**/*"
-  ],"exclude": [
+  ],"exclude": [  
+    "/dist/",
     "**/*.spec.ts"
   ]
 }

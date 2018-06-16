@@ -7,23 +7,17 @@ import 'react-datepicker/dist/react-datepicker.css';
 import * as Yup from 'yup';
 
 import { loadEvents } from '../../services/calendar';
+import { Appointment, makeAppointment } from '../../services/contract';
 import './style.css';
-
-interface FormValues {
-  name: string,
-  company: string,
-  email: string,
-  date: Moment
-}
 
 interface State {
   events: Map<string, Moment[]>,
   loading: boolean
 }
 
-class AppointmentForm extends Component<FormikProps<FormValues>> {
+class AppointmentForm extends Component<FormikProps<Appointment>> {
 
-  constructor(props: FormikProps<FormValues>) {
+  constructor(props: FormikProps<Appointment>) {
     super(props);
     this.state = {
       events: new Map<string, Moment[]>(),
@@ -32,18 +26,17 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
     this.handleDateChange = this.handleDateChange.bind(this);
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     this.setState({ loading: true });
-    loadEvents().then(events => {
-      this.setState({ events, loading: false });
-    });
+    const events = await loadEvents();
+    this.setState({ events, loading: false });
   }
 
   handleDateChange(dateTime: Moment) {
     this.props.setFieldValue('date', dateTime)
   }
 
-  render(props: FormikProps<FormValues>, state: State) {
+  render(props: FormikProps<Appointment>, state: State) {
     
     const {
       handleChange,
@@ -56,6 +49,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
     } = props;
 
     return(
+      //#region form
       <form onSubmit={handleSubmit}>
         <label for="name">Name</label>
         <input
@@ -72,7 +66,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
         <label for="company">Company</label>
         <input
           id="company"
-          placeholder="Enter your company"
+          placeholder="Your company"
           type="text"
           value={values.company}
           onInput={handleChange}
@@ -84,7 +78,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
         <label for="email">Email</label>
         <input
           id="email"
-          placeholder="Enter your email"
+          placeholder="Your email"
           type="email"
           value={values.email}
           onInput={handleChange}
@@ -120,6 +114,7 @@ class AppointmentForm extends Component<FormikProps<FormValues>> {
           Confirm
         </button>
       </form>
+      //#endregion
     );
   }
 }
@@ -142,12 +137,9 @@ const options = {
     email: '',
     date: moment()
   }),
-  handleSubmit: (values: FormValues, { setSubmitting }) => {
-    const payload = {...values};
-    setTimeout(() => {
-      console.log(JSON.stringify(payload, null, 2));
-      setSubmitting(false);
-    }, 3000);
+  handleSubmit: async (values: Appointment, { setSubmitting }) => {
+    await makeAppointment(values);
+    setSubmitting(false);
   }
 }
 
