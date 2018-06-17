@@ -63,7 +63,7 @@ class Widget extends Component<FormikProps<Appointment>> {
         <label for="company">Company</label>
         <input
           id="company"
-          placeholder="Your company"
+          placeholder="Company"
           type="text"
           value={values.company}
           onInput={handleChange}
@@ -75,7 +75,7 @@ class Widget extends Component<FormikProps<Appointment>> {
         <label for="email">Email</label>
         <input
           id="email"
-          placeholder="Your email"
+          placeholder="Email"
           type="email"
           value={values.email}
           onInput={handleChange}
@@ -97,7 +97,6 @@ class Widget extends Component<FormikProps<Appointment>> {
           showDisabledMonthNavigation
           showTimeSelect
           timeFormat="HH:mm"
-          timeIntervals={30}
           dateFormat="LLL"
           timeCaption="time"
           autocomplete="off"
@@ -105,11 +104,13 @@ class Widget extends Component<FormikProps<Appointment>> {
         {errors.date && touched.date && (
           <div class="input-feedback">{errors.date}</div>
         )}
-        <button class="btn"
-          type="submit"
-          disabled={isSubmitting}>
-          Confirm
-        </button>
+        <div className="confirm-container">
+          <button class="btn confirm"
+            type="submit"
+            disabled={isSubmitting}>
+            Confirm
+          </button>
+        </div>
       </form>
       //#endregion
     );
