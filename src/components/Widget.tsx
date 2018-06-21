@@ -14,14 +14,10 @@ interface State {
 
 class Widget extends Component<FormikProps<Appointment>> {
 
-  constructor(props: FormikProps<Appointment>) {
-    super(props);
-    this.state = {
-      events: new Map<string, Moment[]>(),
-      loading: false
-    };
-    this.handleDateChange = this.handleDateChange.bind(this);
-  }
+  state = {
+    events: new Map<string, Moment[]>(),
+    loading: false
+  };
 
   async componentWillMount() {
     this.setState({ loading: true });
@@ -29,7 +25,7 @@ class Widget extends Component<FormikProps<Appointment>> {
     this.setState({ events, loading: false });
   }
 
-  handleDateChange(dateTime: Moment) {
+  handleDateChange = (dateTime: Moment) => {
     this.props.setFieldValue('date', dateTime)
   }
 
