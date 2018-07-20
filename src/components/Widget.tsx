@@ -5,24 +5,27 @@ import { FormikProps, withFormik} from 'formik';
 import * as Yup from 'yup';
 import DatePicker from "react-datepicker";
 import { loadEvents } from '../services/calendar';
-import { Appointment, makeAppointment } from '../services/contract';
+import { Appointment, Scheduler} from '../services/contract';
+import scheduler from '../services/contract';
 
 interface State {
   events: Map<string, Moment[]>,
-  loading: boolean
+  loading: boolean,
+  contract: Scheduler
 }
 
 class Widget extends Component<FormikProps<Appointment>> {
 
   state = {
     events: new Map<string, Moment[]>(),
-    loading: false
+    loading: false,
   };
 
-  async componentWillMount() {
+  componentWillMount() {
     this.setState({ loading: true });
-    const events = await loadEvents();
-    this.setState({ events, loading: false });
+    loadEvents().then(events => {
+      this.setState({ events, loading: false });
+    })
   }
 
   handleDateChange = (dateTime: Moment) => {
@@ -30,7 +33,7 @@ class Widget extends Component<FormikProps<Appointment>> {
   }
 
   render(props: FormikProps<Appointment>, state: State) {
-    
+
     const {
       handleChange,
       handleBlur,
@@ -131,9 +134,11 @@ const options = {
     email: '',
     date: moment()
   }),
-  handleSubmit: async (values: Appointment, { setSubmitting }) => {
-    await makeAppointment(values);
-    setSubmitting(false);
+  handleSubmit: (values: Appointment, { props, setSubmitting }) => {
+    scheduler.makeAppointment(props.web3, props.contract, values)
+      .then(res => console.log(res.logs))
+      .catch(error => console.error(error))
+      .then(() => setSubmitting(false));
   }
 }
 
