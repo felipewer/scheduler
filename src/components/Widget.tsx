@@ -135,7 +135,8 @@ const options = {
     date: moment()
   }),
   handleSubmit: (values: Appointment, { props, setSubmitting }) => {
-    scheduler.makeAppointment(props.web3, props.contract, values)
+    scheduler.getInstance(props.web3)
+      .then(inst => scheduler.makeAppointment(props.web3, inst, values))
       .then(res => console.log(res.logs))
       .catch(error => console.error(error))
       .then(() => setSubmitting(false));

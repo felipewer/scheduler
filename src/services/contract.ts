@@ -3,7 +3,6 @@ import Web3 from 'web3';
 import TruffleContract from "truffle-contract";
 import schedulerJson from '../../build/contracts/Scheduler.json'
 
-
 export interface Scheduler {
   makeAppointment(
     name: string,
