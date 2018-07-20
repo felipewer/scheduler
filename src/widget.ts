@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import habitat from "preact-habitat";
-import Widget from "./components/Widget";
 import getWeb3 from './util/getWeb3';
+import Widget from "./components/Widget";
 
 const injectWidgetStyles = () => {
   const datePickerCss = readFileSync(__dirname + '/../node_modules/react-datepicker/dist/react-datepicker.css', 'utf8');
@@ -21,6 +21,8 @@ getWeb3().then(web3 => {
     defaultProps: {
       apiKey: '',
       calendarId: '',
+      minTime: 7,
+      maxTime: 18,
       web3
     }
   });

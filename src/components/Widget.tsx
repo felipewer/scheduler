@@ -4,14 +4,22 @@ import moment from 'moment';
 import { FormikProps, withFormik} from 'formik';
 import * as Yup from 'yup';
 import DatePicker from "react-datepicker";
+import Web3 from 'web3';
 import { loadEvents } from '../services/calendar';
 import { Appointment, Scheduler} from '../services/contract';
 import scheduler from '../services/contract';
 
 interface State {
   events: Map<string, Moment[]>,
-  loading: boolean,
-  contract: Scheduler
+  loading: boolean
+}
+
+interface PropTypes {
+  apiKey: string,
+  calendarId: string,
+  minTime: number,
+  maxTime: number,
+  web3: Web3
 }
 
 class Widget extends Component<FormikProps<Appointment>> {
@@ -32,7 +40,7 @@ class Widget extends Component<FormikProps<Appointment>> {
     this.props.setFieldValue('date', dateTime)
   }
 
-  render(props: FormikProps<Appointment>, state: State) {
+  render(props: FormikProps<Appointment> & PropTypes, state: State) {
 
     const {
       handleChange,
@@ -41,7 +49,9 @@ class Widget extends Component<FormikProps<Appointment>> {
       isSubmitting,
       errors,
       touched,
-      values
+      values,
+      minTime,
+      maxTime
     } = props;
 
     return(
@@ -89,8 +99,8 @@ class Widget extends Component<FormikProps<Appointment>> {
           selected={values.date}
           onChange={this.handleDateChange}
           excludeTimes={state.events.get(values.date.format('YYYY-MM-DD'))}
-          minTime={moment().hours(7).minutes(0)}
-          maxTime={moment().hours(21).minutes(30)}
+          minTime={moment().hours(minTime).minutes(0)}
+          maxTime={moment().hours(maxTime).minutes(0)}
           minDate={moment()}
           maxDate={moment().add(2, "months")}
           showDisabledMonthNavigation
@@ -116,6 +126,16 @@ class Widget extends Component<FormikProps<Appointment>> {
   }
 }
 
+const startingDate = (minTime: number, maxTime: number) => {
+  const date = moment().minutes(0).add(4, 'h');
+  if (date.hour() < minTime) {
+    date.hours(minTime);
+  } else if (date.hour() > maxTime) {
+    date.add(1, 'd').hours(minTime)
+  }
+  return date
+}
+
 const options = {
   validationSchema: Yup.object().shape({
     name: Yup.string().required('Name is required!'),
@@ -132,7 +152,7 @@ const options = {
     name: '',
     company: '',
     email: '',
-    date: moment()
+    date: startingDate(props.minTime, props.maxTime)
   }),
   handleSubmit: (values: Appointment, { props, setSubmitting }) => {
     scheduler.getInstance(props.web3)
