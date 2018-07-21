@@ -21,8 +21,8 @@ getWeb3().then(web3 => {
     defaultProps: {
       apiKey: '',
       calendarId: '',
-      minTime: 7,
-      maxTime: 18,
+      minHour: '09:00:00Z',
+      maxHour: '17:00:00Z',
       web3
     }
   });

@@ -1,6 +1,6 @@
 import { h, Component } from "preact";
 import { Moment } from 'moment';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { FormikProps, withFormik} from 'formik';
 import * as Yup from 'yup';
 import DatePicker from "react-datepicker";
@@ -17,12 +17,12 @@ interface State {
 interface PropTypes {
   apiKey: string,
   calendarId: string,
-  minTime: number,
-  maxTime: number,
+  minHour: string,
+  maxHour: string,
   web3: Web3
 }
 
-class Widget extends Component<FormikProps<Appointment>> {
+class Widget extends Component<FormikProps<Appointment> & PropTypes> {
 
   state = {
     events: new Map<string, Moment[]>(),
@@ -31,7 +31,8 @@ class Widget extends Component<FormikProps<Appointment>> {
 
   componentWillMount() {
     this.setState({ loading: true });
-    loadEvents().then(events => {
+    const { calendarId, apiKey } = this.props;
+    loadEvents(calendarId, apiKey).then(events => {
       this.setState({ events, loading: false });
     })
   }
@@ -50,8 +51,8 @@ class Widget extends Component<FormikProps<Appointment>> {
       errors,
       touched,
       values,
-      minTime,
-      maxTime
+      minHour,
+      maxHour
     } = props;
 
     return(
@@ -93,20 +94,22 @@ class Widget extends Component<FormikProps<Appointment>> {
         {errors.email && touched.email && (
           <div class="input-feedback">{errors.email}</div>
         )}
-        <label for="appointment-date">Date / Time</label>
+        <label for="appointment-date">
+          Date / Time  (GMT{ moment().format('Z') })
+        </label>
         <DatePicker
           id="appointment-date"
           selected={values.date}
           onChange={this.handleDateChange}
           excludeTimes={state.events.get(values.date.format('YYYY-MM-DD'))}
-          minTime={moment().hours(minTime).minutes(0)}
-          maxTime={moment().hours(maxTime).minutes(0)}
+          minTime={moment(`${moment().format('YYYY-MM-DD')}T${minHour}`)}
+          maxTime={moment(`${moment().format('YYYY-MM-DD')}T${maxHour}`)}
           minDate={moment()}
           maxDate={moment().add(2, "months")}
           showDisabledMonthNavigation
           showTimeSelect
           timeFormat="HH:mm"
-          dateFormat="LLL"
+          dateFormat="lll"
           timeCaption="time"
           autocomplete="off"
         />
@@ -126,14 +129,15 @@ class Widget extends Component<FormikProps<Appointment>> {
   }
 }
 
-const startingDate = (minTime: number, maxTime: number) => {
+const startingDate = (minHour: string, maxHour: string) => {
   const date = moment().minutes(0).add(4, 'h');
-  if (date.hour() < minTime) {
-    date.hours(minTime);
-  } else if (date.hour() > maxTime) {
-    date.add(1, 'd').hours(minTime)
+  const lowerBound = moment(`${moment().format('YYYY-MM-DD')}T${minHour}`);
+  const upperBound = moment(`${moment().format('YYYY-MM-DD')}T${maxHour}`);
+  if (date.isBetween(lowerBound, upperBound, null, '[]')) {
+    return date;
+  } else {
+    return lowerBound.add(1, 'd');
   }
-  return date
 }
 
 const options = {
@@ -152,7 +156,7 @@ const options = {
     name: '',
     company: '',
     email: '',
-    date: startingDate(props.minTime, props.maxTime)
+    date: startingDate(props.minHour, props.maxHour)
   }),
   handleSubmit: (values: Appointment, { props, setSubmitting }) => {
     scheduler.getInstance(props.web3)

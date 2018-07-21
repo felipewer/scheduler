@@ -10,8 +10,8 @@ getWeb3().then(web3 => {
   const props = {
     apiKey: process.env.API_KEY,
     calendarId: process.env.CALENDAR_ID,
-    minTime: process.env.MIN_TIME,
-    maxTime: process.env.MAX_TIME,
+    minHour: process.env.MIN_HOUR,
+    maxHour: process.env.MAX_HOUR,
     web3
   }
 

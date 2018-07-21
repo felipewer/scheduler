@@ -23,6 +23,7 @@
   "dependencies": {
     "formik": "^0.11.11",
     "moment": "^2.22.2",
+    "moment-timezone": "^0.5.21",
     "openzeppelin-solidity": "1.11.0",
     "preact": "^8.2.9",
     "preact-compat": "^3.18.0",
