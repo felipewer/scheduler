@@ -23,7 +23,12 @@ getWeb3().then(web3 => {
       calendarId: '',
       minHour: '09:00:00Z',
       maxHour: '17:00:00Z',
+      confirmationText: 'Confirm',
       web3
     }
   });
-}).catch(error => console.log(error.message));
+})
+.then(() => {
+  window.dispatchEvent(new Event('SCHEDULER_WIDGET_LOADED'));
+})
+.catch(error => console.log(error.message));

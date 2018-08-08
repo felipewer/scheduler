@@ -19,6 +19,7 @@ interface PropTypes {
   calendarId: string,
   minHour: string,
   maxHour: string,
+  confirmationText: string,
   web3: Web3
 }
 
@@ -52,7 +53,8 @@ class Widget extends Component<FormikProps<Appointment> & PropTypes> {
       touched,
       values,
       minHour,
-      maxHour
+      maxHour,
+      confirmationText
     } = props;
 
     return(
@@ -116,11 +118,11 @@ class Widget extends Component<FormikProps<Appointment> & PropTypes> {
         {errors.date && touched.date && (
           <div class="input-feedback">{errors.date}</div>
         )}
-        <div className="confirm-container">
+        <div class="confirm-container">
           <button class="btn confirm"
             type="submit"
             disabled={isSubmitting}>
-            Confirm
+            { confirmationText }
           </button>
         </div>
       </form>

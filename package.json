@@ -27,10 +27,10 @@
     "openzeppelin-solidity": "1.11.0",
     "preact": "^8.2.9",
     "preact-compat": "^3.18.0",
-    "preact-habitat": "^3.2.1",
+    "preact-habitat": "3.2.1",
     "react-datepicker": "^1.5.0",
     "truffle-contract": "^3.0.6",
-    "web3": "^1.0.0-beta.34",
+    "web3": "1.0.0-beta.35",
     "yup": "^0.25.1"
   },
   "alias": {

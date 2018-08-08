@@ -12,6 +12,7 @@ getWeb3().then(web3 => {
     calendarId: process.env.CALENDAR_ID,
     minHour: process.env.MIN_HOUR,
     maxHour: process.env.MAX_HOUR,
+    confirmationText: 'Confirm',
     web3
   }
 

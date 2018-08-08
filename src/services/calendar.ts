@@ -9,14 +9,20 @@ const buildUrl = (calendarId: string, timeMin: string, apiKey: string) => {
   return `${calendarAPI}${eventsPath}?${fields}&timeMin=${timeMin}&${key}`;
 }
 
+/** Build a Map structure to organize google calendar dateTime event items 
+ * into sub-arrays mapped by their date strings (YYYY-MM-DD). Also converts the
+ * events' timezone to the local timezone.
+ * 
+ * @param dateTimeItems 
+ * @param calendarTimeZone 
+ */
 export const buildEventsMap = (
   dateTimeItems: any[] = [],
-  timeZone: string
+  calendarTimeZone: string
 ): Map<string, Moment[]> => {
-  
   const dateTimeEvts = new Map<string, Moment[]>();
   dateTimeItems.forEach(item => {
-    const dt = moment.tz(item.start.dateTime, timeZone);
+    const dt = moment.tz(item.start.dateTime, calendarTimeZone);
     const localDt = dt.tz(moment.tz.guess());
     const key = localDt.format('YYYY-MM-DD');
     if (dateTimeEvts.has(key)) {
@@ -26,7 +32,6 @@ export const buildEventsMap = (
     }
   })
   return dateTimeEvts;
-
 }
 
 export const loadEvents = (
