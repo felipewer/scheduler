@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 import DatePicker from "react-datepicker";
 import Web3 from 'web3';
 import { loadEvents } from '../services/calendar';
-import { Appointment, Scheduler} from '../services/contract';
+import { Appointment } from '../services/contract';
 import scheduler from '../services/contract';
 
 interface State {
@@ -161,8 +161,7 @@ const options = {
     date: startingDate(props.minHour, props.maxHour)
   }),
   handleSubmit: (values: Appointment, { props, setSubmitting }) => {
-    scheduler.getInstance(props.web3)
-      .then(inst => scheduler.makeAppointment(props.web3, inst, values))
+    scheduler(props.web3).makeAppointment(values)
       .then(res => console.log(res.logs))
       .catch(error => console.error(error))
       .then(() => setSubmitting(false));
