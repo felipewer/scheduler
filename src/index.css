@@ -70,8 +70,19 @@ ul.react-datepicker__time-list {
   padding: 7px;
 }
 
-.warn {
-  color: #ee701c;
+.feedback {
   text-align: center;
   font-weight: bold;
+}
+
+.loading {
+  color: green;
+}
+
+.warning {
+  color: #ee701c;
+}
+
+.error {
+  color: red;
 }

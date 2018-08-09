@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import habitat from "preact-habitat";
-import getWeb3 from './util/getWeb3';
+import getWeb3 from './util/get_web3';
 import Widget from "./components/Widget";
 
 const injectWidgetStyles = () => {
@@ -24,6 +24,10 @@ getWeb3().then(web3 => {
       minHour: '09:00:00Z',
       maxHour: '17:00:00Z',
       confirmationText: 'Confirm',
+      network: {
+        id: 100,
+        name: 'Custom'
+      },
       web3
     }
   });

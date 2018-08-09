@@ -4,6 +4,6 @@ services:
 
   ganache:
     image: trufflesuite/ganache-cli
-    command: -d -m "blue april lock soup cradle apple pistol device venture salon squirrel quote"
+    command: -d -i 100 -m "blue april lock soup cradle apple pistol device venture salon squirrel quote"
     ports:
       - 8545:8545

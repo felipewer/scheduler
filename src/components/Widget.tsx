@@ -5,15 +5,17 @@ import Web3 from 'web3';
 import calendar from '../services/calendar';
 import { Appointment } from '../services/contract';
 import scheduler from '../services/contract';
+import { Network } from '../services/network';
+import net from '../services/network';
 import AppointmentForm from './widget/AppointmentForm';
 import Success from './widget/Success';
 
 enum Status {
-  LOADING,
-  READY,
-  SUCCESS,
-  WARNING,
-  ERROR
+  LOADING = 'loading',
+  READY = 'ready',
+  SUCCESS = 'success',
+  WARNING = 'warning',
+  ERROR = 'error'
 }
 
 interface Receipt {
@@ -35,6 +37,7 @@ interface PropTypes {
   minHour: string,
   maxHour: string,
   confirmationText: string,
+  network: Network,
   web3: Web3
 }
 
@@ -44,14 +47,22 @@ class Widget extends Component<PropTypes> {
     events: new Map<string, Moment[]>(),
     status: Status.LOADING,
     receipt: {},
-    feedback: ''
+    feedback: 'Checking Ethereum connectivity ...'
   };
 
   componentWillMount() {
-    const { calendarId, apiKey } = this.props;
-    calendar.loadEvents(calendarId, apiKey).then(events => {
-      this.setState({ events, status: Status.READY });
-    })
+    const { calendarId, apiKey, network, web3 } = this.props;
+    net.checkConnection(web3, network)
+      .then(() => this.setState({ feedback: 'Loading calendar data ...' }))
+      .then(() => calendar.loadEvents(calendarId, apiKey))
+      .then(events => {
+        this.setState({ events, status: Status.READY });
+      }).catch(error => {
+        this.setState({
+          status: Status.ERROR,
+          feedback: error.message
+        });
+      })
   }
 
   handleConfirmation = (appointment: Appointment) => {
@@ -85,21 +96,20 @@ class Widget extends Component<PropTypes> {
     const { LOADING, READY, SUCCESS, WARNING, ERROR } = Status;
     return(
       <div>
-        { status === LOADING && 
-          <p>Loading calendar data...</p>
-        }{ (status === READY || status === WARNING) &&
+        { (status === READY || status === WARNING) &&
           <AppointmentForm
             events={events}
             minHour={minHour}
             maxHour={maxHour}
             confirmationText={confirmationText}
             onConfirm={this.handleConfirmation}
-          />
-        }{ status === WARNING && 
-          <p class="warn">{ feedback }</p>
+            />
         }
         { status === SUCCESS &&
           <Success { ...receipt }/>
+        }
+        { status !== READY && status !== SUCCESS && 
+          <p class={`feedback ${status}`}>{ feedback }</p>
         }
       </div>
     );

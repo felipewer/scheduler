@@ -1,7 +1,7 @@
 import { h, render } from "preact";
 import 'react-datepicker/dist/react-datepicker.css'
 import './index.css';
-import getWeb3 from './util/getWeb3';
+import getWeb3 from './util/get_web3';
 import Widget from "./components/Widget";
 
 getWeb3().then(web3 => {
@@ -13,6 +13,10 @@ getWeb3().then(web3 => {
     minHour: process.env.MIN_HOUR,
     maxHour: process.env.MAX_HOUR,
     confirmationText: 'Confirm',
+    network: {
+      id: parseInt(process.env.NETWORK_ID, 10),
+      name: process.env.NETWORK_NAME
+    },
     web3
   }
 
