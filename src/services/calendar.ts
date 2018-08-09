@@ -16,7 +16,7 @@ const buildUrl = (calendarId: string, timeMin: string, apiKey: string) => {
  * @param dateTimeItems 
  * @param calendarTimeZone 
  */
-export const buildEventsMap = (
+const buildEventsMap = (
   dateTimeItems: any[] = [],
   calendarTimeZone: string
 ): Map<string, Moment[]> => {
@@ -34,7 +34,7 @@ export const buildEventsMap = (
   return dateTimeEvts;
 }
 
-export const loadEvents = (
+const loadEvents = (
   calendarId: string,
   apiKey: string,
   startDate: Moment = moment()
@@ -43,3 +43,5 @@ export const loadEvents = (
     .then(res => res.json())
     .then(res => buildEventsMap(res.items, res.timeZone));
 }
+
+export default { buildEventsMap, loadEvents };
