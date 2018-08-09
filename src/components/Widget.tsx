@@ -1,5 +1,6 @@
 import { h, Component } from "preact";
 import { Moment } from 'moment';
+import moment from 'moment';
 import Web3 from 'web3';
 import calendar from '../services/calendar';
 import { Appointment } from '../services/contract';
@@ -11,14 +12,21 @@ enum Status {
   LOADING,
   READY,
   SUCCESS,
-  ERROR,
-  FATAL
+  WARNING,
+  ERROR
+}
+
+interface Receipt {
+  name: string,
+  dateTime: Moment,
+  tx: string
 }
 
 interface State {
   events: Map<string, Moment[]>,
   status: Status,
-  results: any
+  receipt: Receipt,
+  feedback: string
 }
 
 interface PropTypes {
@@ -35,7 +43,8 @@ class Widget extends Component<PropTypes> {
   state = {
     events: new Map<string, Moment[]>(),
     status: Status.LOADING,
-    results: {}
+    receipt: {},
+    feedback: ''
   };
 
   componentWillMount() {
@@ -46,26 +55,39 @@ class Widget extends Component<PropTypes> {
   }
 
   handleConfirmation = (appointment: Appointment) => {
+    this.setState({
+      status: Status.WARNING,
+      feedback: 'Please confirm transaction!'
+    })
     return scheduler(this.props.web3).makeAppointment(appointment)
       .then(res => {
-        console.log(res);
         const { name, date } = res.logs[0].args;
         const { tx } = res;
         this.setState({ 
           status: Status.SUCCESS,
-          results: { name, date, tx } 
+          receipt: { name, dateTime: moment.unix(date), tx } 
         });
       })
-      .catch(error => console.error(error));
+      .catch(error => {
+        if (error.message && error.message.match(/User denied/)) {
+          this.setState({ status: Status.READY, feedback: '' });
+        } else {
+          const feedback = `Dang it! Something went wrong :/ 
+            You may check the console for more information.`;
+          this.setState({ status: Status.WARNING, feedback });
+          console.error(error)
+        }
+      });
   }
 
-  render(props: PropTypes, { events, status, results }: State) {
+  render(props: PropTypes, { events, status, receipt, feedback }: State) {
     const { minHour, maxHour, confirmationText } = props;
+    const { LOADING, READY, SUCCESS, WARNING, ERROR } = Status;
     return(
       <div>
-        { status === Status.LOADING && 
+        { status === LOADING && 
           <p>Loading calendar data...</p>
-        }{ status === Status.READY &&
+        }{ (status === READY || status === WARNING) &&
           <AppointmentForm
             events={events}
             minHour={minHour}
@@ -73,7 +95,12 @@ class Widget extends Component<PropTypes> {
             confirmationText={confirmationText}
             onConfirm={this.handleConfirmation}
           />
-        }{ status === Status.SUCCESS && <Success { ...results }/>}
+        }{ status === WARNING && 
+          <p class="warn">{ feedback }</p>
+        }
+        { status === SUCCESS &&
+          <Success { ...receipt }/>
+        }
       </div>
     );
   }

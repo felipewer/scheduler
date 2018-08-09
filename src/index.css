@@ -69,3 +69,9 @@ label {
 ul.react-datepicker__time-list {
   padding: 7px;
 }
+
+.warn {
+  color: #ee701c;
+  text-align: center;
+  font-weight: bold;
+}

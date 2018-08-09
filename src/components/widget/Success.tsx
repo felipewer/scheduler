@@ -1,17 +1,16 @@
 import { h } from "preact";
-import moment from 'moment';
 
 const firstName = (fullName: string) => fullName.split(' ')[0];
 
-const formatDate = (date) => (
-  moment.unix(date).format('dddd, MMMM Do YYYY, h:mm a')
+const formatDate = (dateTime) => (
+  dateTime.format('dddd, MMMM Do YYYY, h:mm a')
 )
 
-export default ({ name, date, tx }) => (
+export default ({ name, dateTime, tx }) => (
   <div>
     <p>
       Thanks <strong>{ firstName(name) }</strong>. Your appointment 
-      for <strong>{ formatDate(date) }</strong> is on the blockchain.
+      for <strong>{ formatDate(dateTime) }</strong> is on the blockchain.
     </p>
       
     <p>Check it out on&nbsp;
