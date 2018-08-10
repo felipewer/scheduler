@@ -101,10 +101,10 @@ class AppointmentForm extends Component<FormikProps<Appointment> & PropTypes> {
           <div class="input-feedback">{errors.date}</div>
         )}
         <div class="confirm-container">
-          <button class="btn confirm"
+          <button class={ `btn confirm ${ isSubmitting && 'spinner' }` }
             type="submit"
             disabled={isSubmitting}>
-            { confirmationText }
+            { !isSubmitting && confirmationText }
           </button>
         </div>
       </form>

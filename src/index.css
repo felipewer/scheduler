@@ -86,3 +86,32 @@ ul.react-datepicker__time-list {
 .error {
   color: red;
 }
+
+.spinner {
+  /* position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); */
+  /* width: 32px;
+  height: 32px; */
+  /* display: inline-block; */
+}
+.spinner:after {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  /* margin: 5px; */
+  border-radius: 50%;
+  border: 3px solid whitesmoke;
+  border-color: whitesmoke transparent whitesmoke transparent;
+  animation: spinner 1.2s linear infinite;
+}
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
