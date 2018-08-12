@@ -145,7 +145,7 @@ const options = {
   }),
   
   handleSubmit: (values: Appointment, { props, setSubmitting }) => {
-    props.onConfirm(values).then(() => setSubmitting(false));
+    props.onSubmit(values).then(() => setSubmitting(false));
   }
 }
 

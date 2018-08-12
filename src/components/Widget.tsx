@@ -21,7 +21,7 @@ enum Status {
 interface Receipt {
   name: string,
   dateTime: Moment,
-  tx: string
+  transactionHash: string
 }
 
 interface State {
@@ -65,30 +65,41 @@ class Widget extends Component<PropTypes> {
       })
   }
 
-  handleConfirmation = (appointment: Appointment) => {
+  onTransaction = (hash) => {
+    const feedback = `Transaction sent. Mining underway ...`;
+    this.setState({ feedback });
+  }
+
+  onReceipt = (receipt) => {
+    const { name, date } = receipt.events['NewAppointment'].returnValues;
+    const { transactionHash } = receipt;
+    this.setState({ 
+      status: Status.SUCCESS,
+      receipt: { name, dateTime: moment.unix(date), transactionHash } 
+    });
+  }
+
+  onError = (error) => {
+    if (error.message && error.message.match(/User denied/)) {
+      this.setState({ status: Status.READY, feedback: '' });
+    } else {
+      const feedback = `Dang it! Something went wrong :/ 
+        You may check the console for more information.`;
+      this.setState({ feedback });
+      console.error(error)
+    }
+  }
+
+  handleSubmission = (appointment: Appointment) => {
     this.setState({
       status: Status.WARNING,
       feedback: 'Please confirm transaction!'
-    })
-    return scheduler(this.props.web3).makeAppointment(appointment)
-      .then(res => {
-        const { name, date } = res.logs[0].args;
-        const { tx } = res;
-        this.setState({ 
-          status: Status.SUCCESS,
-          receipt: { name, dateTime: moment.unix(date), tx } 
-        });
-      })
-      .catch(error => {
-        if (error.message && error.message.match(/User denied/)) {
-          this.setState({ status: Status.READY, feedback: '' });
-        } else {
-          const feedback = `Dang it! Something went wrong :/ 
-            You may check the console for more information.`;
-          this.setState({ status: Status.WARNING, feedback });
-          console.error(error)
-        }
-      });
+    });
+    const { web3, network: { id } } = this.props;
+    return scheduler(web3, id)
+      .makeAppointment(appointment, this.onTransaction)
+        .then(this.onReceipt)
+        .catch(this.onError);
   }
 
   render(props: PropTypes, { events, status, receipt, feedback }: State) {
@@ -102,7 +113,7 @@ class Widget extends Component<PropTypes> {
             minHour={minHour}
             maxHour={maxHour}
             confirmationText={confirmationText}
-            onConfirm={this.handleConfirmation}
+            onSubmit={this.handleSubmission}
             />
         }
         { status === SUCCESS &&

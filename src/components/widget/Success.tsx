@@ -6,7 +6,7 @@ const formatDate = (dateTime) => (
   dateTime.format('dddd, MMMM Do YYYY, h:mm a')
 )
 
-export default ({ name, dateTime, tx }) => (
+export default ({ name, dateTime, transactionHash }) => (
   <div>
     <p>
       Thanks <strong>{ firstName(name) }</strong>. Your appointment 
@@ -14,8 +14,10 @@ export default ({ name, dateTime, tx }) => (
     </p>
       
     <p>Check it out on&nbsp;
-      <a href={ `https://ropsten.etherscan.io/tx/${ tx }` } target="_blank">
-      etherscan</a>.
+      <a target="_blank"
+        href={ `https://ropsten.etherscan.io/tx/${ transactionHash }` }>
+        etherscan
+      </a>.
     </p>
       
     <p>
