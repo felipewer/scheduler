@@ -1,15 +1,16 @@
 import { h, Component } from "preact";
 import { Moment } from 'moment';
-import moment from 'moment-timezone';
+import moment from 'moment';
 import { FormikProps, withFormik} from 'formik';
 import * as Yup from 'yup';
 import DatePicker from "react-datepicker";
 import Web3 from 'web3';
 import { Appointment } from '../../services/contract';
-import scheduler from '../../services/contract';
+import { isWeekday, nextAvailableTime, lowerBound } from '../../services/date';
+import { EventMap } from '../../services/calendar';
 
 interface PropTypes {
-  events: Map<string, Moment[]>,
+  events: EventMap,
   minHour: string,
   maxHour: string,
   confirmationText: string,
@@ -18,8 +19,30 @@ interface PropTypes {
 
 class AppointmentForm extends Component<FormikProps<Appointment> & PropTypes> {
 
+  state = {
+    nextAvailableTime: null
+  }
+
+  componentWillMount() {
+    const { events, minHour, maxHour } = this.props;
+    this.setState({
+      nextAvailableTime: nextAvailableTime(events, minHour, maxHour)
+    })
+  }
+
   handleDateChange = (dateTime: Moment) => {
     this.props.setFieldValue('date', dateTime)
+  }
+
+  timesToExclude = () => {
+    const { events, minHour, values } = this.props;
+    const minTime = lowerBound(values.date, minHour);
+    const dateEvents = new Set(events.get(values.date.format('YYYY-MM-DD')));
+    while (minTime.isBefore(this.state.nextAvailableTime)){
+      dateEvents.add(minTime.format());
+      minTime.add(1, 'hour');
+    }
+    return Array.from(dateEvents.values(), value => moment(value));
   }
 
   render(props: FormikProps<Appointment> & PropTypes) {
@@ -84,7 +107,8 @@ class AppointmentForm extends Component<FormikProps<Appointment> & PropTypes> {
           id="appointment-date"
           selected={values.date}
           onChange={this.handleDateChange}
-          excludeTimes={events.get(values.date.format('YYYY-MM-DD'))}
+          filterDate={isWeekday}
+          excludeTimes={this.timesToExclude()}
           minTime={moment(`${moment().format('YYYY-MM-DD')}T${minHour}`)}
           maxTime={moment(`${moment().format('YYYY-MM-DD')}T${maxHour}`)}
           minDate={moment()}
@@ -113,17 +137,6 @@ class AppointmentForm extends Component<FormikProps<Appointment> & PropTypes> {
   }
 }
 
-const startingDate = (minHour: string, maxHour: string) => {
-  const date = moment().minutes(0).add(4, 'h');
-  const lowerBound = moment(`${moment().format('YYYY-MM-DD')}T${minHour}`);
-  const upperBound = moment(`${moment().format('YYYY-MM-DD')}T${maxHour}`);
-  if (date.isBetween(lowerBound, upperBound, null, '[]')) {
-    return date;
-  } else {
-    return lowerBound.add(1, 'd');
-  }
-}
-
 const options = {
   validationSchema: Yup.object().shape({
     name: Yup.string().required('Name is required!'),
@@ -137,11 +150,11 @@ const options = {
       .required('Date is required!')
   }),
   
-  mapPropsToValues: props => ({
+    mapPropsToValues: props => ({
     name: '',
     company: '',
     email: '',
-    date: startingDate(props.minHour, props.maxHour)
+    date: nextAvailableTime(props.events, props.minHour, props.maxHour)
   }),
   
   handleSubmit: (values: Appointment, { props, setSubmitting }) => {

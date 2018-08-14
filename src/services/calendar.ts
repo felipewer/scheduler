@@ -1,6 +1,8 @@
 import { Moment } from 'moment';
 import moment from 'moment-timezone';
 
+export type EventMap = Map<string, Set<string>>;
+
 const buildUrl = (calendarId: string, timeMin: string, apiKey: string) => {
   const calendarAPI = 'https://www.googleapis.com/calendar/v3';
   const eventsPath = `/calendars/${calendarId}/events`;
@@ -19,16 +21,16 @@ const buildUrl = (calendarId: string, timeMin: string, apiKey: string) => {
 const buildEventsMap = (
   dateTimeItems: any[] = [],
   calendarTimeZone: string
-): Map<string, Moment[]> => {
-  const dateTimeEvts = new Map<string, Moment[]>();
+): EventMap => {
+  const dateTimeEvts = new Map<string, Set<string>>();
   dateTimeItems.forEach(item => {
     const dt = moment.tz(item.start.dateTime, calendarTimeZone);
     const localDt = dt.tz(moment.tz.guess());
     const key = localDt.format('YYYY-MM-DD');
     if (dateTimeEvts.has(key)) {
-      dateTimeEvts.get(key).push(localDt);
+      dateTimeEvts.get(key).add(localDt.format());
     } else {
-      dateTimeEvts.set(key, [ localDt ]);
+      dateTimeEvts.set(key, new Set<string>([ localDt.format() ]));
     }
   })
   return dateTimeEvts;
