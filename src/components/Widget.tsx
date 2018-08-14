@@ -25,7 +25,7 @@ interface Receipt {
 }
 
 interface State {
-  events: Map<string, Moment[]>,
+  events: Map<string, Set<string>>,
   status: Status,
   receipt: Receipt,
   feedback: string
@@ -44,7 +44,7 @@ interface PropTypes {
 class Widget extends Component<PropTypes> {
 
   state = {
-    events: new Map<string, Moment[]>(),
+    events: new Map<string, Set<string>>(),
     status: Status.LOADING,
     receipt: {},
     feedback: 'Checking Ethereum connectivity ...'
@@ -102,9 +102,10 @@ class Widget extends Component<PropTypes> {
         .catch(this.onError);
   }
 
-  render(props: PropTypes, { events, status, receipt, feedback }: State) {
+  render(props: PropTypes, state: State) {
     const { minHour, maxHour, confirmationText } = props;
-    const { LOADING, READY, SUCCESS, WARNING, ERROR } = Status;
+    const { events, status, receipt, feedback } = state;
+    const { READY, SUCCESS, WARNING } = Status;
     return(
       <div>
         { (status === READY || status === WARNING) &&
