@@ -21,8 +21,8 @@ getWeb3().then(web3 => {
     defaultProps: {
       apiKey: '',
       calendarId: '',
-      minHour: '09:00:00Z',
-      maxHour: '17:00:00Z',
+      minHour: { "hour": 9, "timezone": "GMT" },
+      maxHour: { "hour": 17, "timezone": "GMT" },
       confirmationText: 'Confirm',
       network: {
         id: 100,

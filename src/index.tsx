@@ -10,8 +10,8 @@ getWeb3().then(web3 => {
   const props = {
     apiKey: process.env.API_KEY,
     calendarId: process.env.CALENDAR_ID,
-    minHour: process.env.MIN_HOUR,
-    maxHour: process.env.MAX_HOUR,
+    minHour: JSON.parse(process.env.MIN_HOUR),
+    maxHour: JSON.parse(process.env.MAX_HOUR),
     confirmationText: 'Confirm',
     network: {
       id: parseInt(process.env.NETWORK_ID, 10),

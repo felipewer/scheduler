@@ -2,28 +2,26 @@ import { Moment } from 'moment-timezone';
 import moment from 'moment-timezone';
 import { EventMap } from './calendar';
 
+export interface Hour {
+  hour: number,
+  timezone: string
+}
+
 export const isWeekday = (date: Moment) => (
   date.day() !== 0 && date.day() !== 6
 );
 
-export const getMomentAt = (hour, timezone, baseDate = moment()) => (
-  baseDate.tz(timezone).hours(hour).startOf('hour')
+export const getMomentAt = (
+  { hour, timezone }: Hour,
+  baseDate = moment()
+) => (
+  baseDate.clone().tz(timezone).hours(hour).startOf('hour')
 )
-
-
-export const lowerBound = (dateTime: Moment, minHour: string) => (
-  moment(`${dateTime.format('YYYY-MM-DD')}T${minHour}`)
-)
-
-const upperBound = (dateTime: Moment, maxHour: string) => (
-  moment(`${dateTime.format('YYYY-MM-DD')}T${maxHour}`)
-)
-
 
 export const nextAvailableTime = (
   events: EventMap,
-  minHour: string,
-  maxHour: string,
+  minHour: Hour,
+  maxHour: Hour,
   now = moment()
 ): Moment => {
   // Must be at least 4 hours in the future
@@ -32,15 +30,15 @@ export const nextAvailableTime = (
   if (!isWeekday(nextTime)){
     do {
       nextTime.add(1, 'day');
-      nextTime = lowerBound(nextTime, minHour);
+      nextTime = getMomentAt(minHour, nextTime);
     } while (!isWeekday(nextTime))
   } else {
     // Must be between minimum and maximum hours
-    nextTime = moment.max(nextTime, lowerBound(nextTime, minHour));
-    if (nextTime.isAfter(upperBound(nextTime, maxHour))) {
+    nextTime = moment.max(nextTime, getMomentAt(minHour, nextTime));
+    if (nextTime.isAfter(getMomentAt(maxHour, nextTime))) {
       do {
         nextTime.add(1, 'day');
-        nextTime = lowerBound(nextTime, minHour);
+        nextTime = getMomentAt(minHour, nextTime);
       } while (!isWeekday(nextTime))
     }
   }
@@ -48,9 +46,9 @@ export const nextAvailableTime = (
   const dateEvents = new Set(events.get(nextTime.format('YYYY-MM-DD')));
   while(dateEvents.has(nextTime.format())) {
     nextTime.add(1, 'hour');
-    if (!nextTime.isBefore(upperBound(nextTime, maxHour))) {
+    if (!nextTime.isBefore(getMomentAt(maxHour, nextTime))) {
         nextTime.add(1, 'day');
-        nextTime = lowerBound(nextTime, minHour);
+        nextTime = getMomentAt(minHour, nextTime);
     }
   }
 

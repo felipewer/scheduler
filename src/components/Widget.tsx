@@ -1,10 +1,11 @@
 import { h, Component } from "preact";
-import { Moment } from 'moment';
-import moment from 'moment';
+import { Moment } from 'moment-timezone';
+import moment from 'moment-timezone';
 import Web3 from 'web3';
 import calendar from '../services/calendar';
 import { Appointment } from '../services/contract';
 import scheduler from '../services/contract';
+import { Hour } from '../services/date';
 import { Network } from '../services/network';
 import net from '../services/network';
 import AppointmentForm from './widget/AppointmentForm';
@@ -34,8 +35,8 @@ interface State {
 interface PropTypes {
   apiKey: string,
   calendarId: string,
-  minHour: string,
-  maxHour: string,
+  minHour: Hour,
+  maxHour: Hour,
   confirmationText: string,
   network: Network,
   web3: Web3

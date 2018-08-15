@@ -5,37 +5,48 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DatePicker from "react-datepicker";
 import { Appointment } from '../../services/contract';
-import { isWeekday, nextAvailableTime, lowerBound } from '../../services/date';
+import { getMomentAt, isWeekday, nextAvailableTime, Hour } from '../../services/date';
 import { EventMap } from '../../services/calendar';
 
 interface Props {
   events: EventMap,
-  minHour: string,
-  maxHour: string,
+  minHour: Hour,
+  maxHour: Hour,
   confirmationText: string,
   onSubmit: (appointment: Appointment) => Promise<any>
 }
 
 interface State {
-  nextAvailableTime: Moment
+  nextAvailableTime: Moment,
+  minTime: Moment,
+  maxTime: Moment,
+  minDate: Moment,
+  maxDate: Moment
 }
 
 class AppointmentForm extends Component<Props, State> {
 
   state = {
-    nextAvailableTime: null
-  }
+    nextAvailableTime: null,
+    minTime: null,
+    maxTime: null,
+    minDate: moment(),
+    maxDate: moment().add(2, "months")
+}
 
   componentWillMount() {
     const { events, minHour, maxHour } = this.props;
+    const nextTime = nextAvailableTime(events, minHour, maxHour);
     this.setState({
-      nextAvailableTime: nextAvailableTime(events, minHour, maxHour)
+      nextAvailableTime: nextTime,
+      minTime: getMomentAt(minHour, nextTime),
+      maxTime: getMomentAt(maxHour, nextTime)
     })
   }
 
   timesToExclude = (date) => {
     const { events, minHour } = this.props;
-    const minTime = lowerBound(date, minHour);
+    const minTime = getMomentAt(minHour, date);
     const dateEvents = new Set(events.get(date.format('YYYY-MM-DD')));
     while (minTime.isBefore(this.state.nextAvailableTime)){
       dateEvents.add(minTime.format());
@@ -45,12 +56,7 @@ class AppointmentForm extends Component<Props, State> {
   }
 
   render(props: Props, state: State) {
-    const {
-      minHour,
-      maxHour,
-      confirmationText,
-      onSubmit
-    } = props;
+    const { confirmationText, onSubmit } = props;
 
     return (
       <Formik
@@ -132,10 +138,10 @@ class AppointmentForm extends Component<Props, State> {
               onChange={dateTime => setFieldValue('date', dateTime)}
               filterDate={isWeekday}
               excludeTimes={this.timesToExclude(values.date)}
-              minTime={moment(`${moment().format('YYYY-MM-DD')}T${minHour}`)}
-              maxTime={moment(`${moment().format('YYYY-MM-DD')}T${maxHour}`)}
-              minDate={moment()}
-              maxDate={moment().add(2, "months")}
+              minTime={state.minTime}
+              maxTime={state.maxTime}
+              minDate={state.minDate}
+              maxDate={state.maxDate}
               showDisabledMonthNavigation
               showTimeSelect
               timeFormat="HH:mm"
