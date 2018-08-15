@@ -1,16 +1,14 @@
-import { Moment } from 'moment';
-import moment from 'moment';
+import { Moment } from 'moment-timezone';
+import moment from 'moment-timezone';
 import { EventMap } from './calendar';
 
 export const isWeekday = (date: Moment) => (
   date.day() !== 0 && date.day() !== 6
 );
 
-const inRange = (dateTime: Moment, minHour: string, maxHour: string) => {
-  const lowerBound = moment(`${dateTime.format('YYYY-MM-DD')}T${minHour}`);
-  const upperBound = moment(`${dateTime.format('YYYY-MM-DD')}T${maxHour}`);
-  return dateTime.isBetween(lowerBound, upperBound, null, '(]')
-}
+export const getMomentAt = (hour, timezone, baseDate = moment()) => (
+  baseDate.tz(timezone).hours(hour).startOf('hour')
+)
 
 
 export const lowerBound = (dateTime: Moment, minHour: string) => (
@@ -51,7 +49,8 @@ export const nextAvailableTime = (
   while(dateEvents.has(nextTime.format())) {
     nextTime.add(1, 'hour');
     if (!nextTime.isBefore(upperBound(nextTime, maxHour))) {
-      nextTime = lowerBound(nextTime, minHour);
+        nextTime.add(1, 'day');
+        nextTime = lowerBound(nextTime, minHour);
     }
   }
 

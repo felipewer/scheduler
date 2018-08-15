@@ -12,7 +12,6 @@ contract('Scheduler', accounts => {
         moment().add(1, 'd').unix(),
         { from: accounts[0]}
       ).then(results => {
-        console.log(results.logs[0].args)
         expect(results.logs.length).to.equal(1);
         expect(results.logs[0].event).to.equal('NewAppointment');
       })

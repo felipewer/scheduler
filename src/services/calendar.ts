@@ -20,12 +20,13 @@ const buildUrl = (calendarId: string, timeMin: string, apiKey: string) => {
  */
 const buildEventsMap = (
   dateTimeItems: any[] = [],
-  calendarTimeZone: string
+  calendarTimeZone: string,
+  localTimeZone = moment.tz.guess()
 ): EventMap => {
   const dateTimeEvts = new Map<string, Set<string>>();
   dateTimeItems.forEach(item => {
     const dt = moment.tz(item.start.dateTime, calendarTimeZone);
-    const localDt = dt.tz(moment.tz.guess());
+    const localDt = dt.tz(localTimeZone);
     const key = localDt.format('YYYY-MM-DD');
     if (dateTimeEvts.has(key)) {
       dateTimeEvts.get(key).add(localDt.format());
