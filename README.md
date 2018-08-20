@@ -4,7 +4,7 @@ An Ethereum Smart Contract enabled widget for interview scheduling.
 
 This project has an intentionally small feature scope and in fact is not the greatest blockchain use case candidate. It is more of an exercise to understand technologies and techniques used to integrate web stacks and smart contracts. In other words, how to develop Ethereum Dapps.
 
-The widget is used in my [personal website](https://www.secbit.com.br). It is only rendered if the browser has web3 support (e.g. through Metamask extension). The smart contract [is deployed](0x4ac7a94bcec986d7435af94fd171681d818ef10cc2812a0089c5557604497a89) on the Ropsten testnet.
+The widget is used in my [personal website](https://www.secbit.com.br). It is only rendered if the browser has web3 support (e.g. through Metamask extension). The smart contract [is deployed](https://ropsten.etherscan.io/tx/0x4ac7a94bcec986d7435af94fd171681d818ef10cc2812a0089c5557604497a89) on the Ropsten testnet.
 
 ## Architecture
 
